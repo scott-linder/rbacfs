@@ -46,12 +46,13 @@ typedef void* yyscan_t;
 
 %type <slist> perm_list
 %type <slist> id_list
+%type <def> def_list
 %type <def> def
 
 %%
 
 input
-    : def { *def = $1; }
+    : def_list { *def = $1; }
     ;
 
 perm_list
@@ -62,6 +63,11 @@ perm_list
 id_list
     : TOKEN_ID { $$ = slist_create(); $$->s = $1; }
     | id_list TOKEN_COMMA TOKEN_ID { slist_append($1, $3); }
+    ;
+
+def_list
+    : def
+    | def_list def { def_append($1, $2); }
     ;
 
 def

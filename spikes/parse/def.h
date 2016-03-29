@@ -42,8 +42,12 @@ struct def {
             int recursive;
         } obj;
     };
+
+    struct def *next;
 };
 
 struct def *def_create(enum def_type type);
+void def_append(struct def *list, struct def *def);
+void def_destroy(struct def *list);
 
 #endif // DEF_H
