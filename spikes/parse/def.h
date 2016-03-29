@@ -39,6 +39,7 @@ struct def {
         struct {
             char *obj;
             struct slist *perms;
+            int recursive;
         } obj;
     };
 };

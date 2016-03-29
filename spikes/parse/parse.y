@@ -38,8 +38,8 @@ typedef void* yyscan_t;
 
 %token TOKEN_USER;
 %token TOKEN_OBJ;
-%token TOKEN_RECURSIVE;
 %token TOKEN_COMMA;
+%token TOKEN_RECURSIVE;
 %token <s> TOKEN_PERM;
 %token <s> TOKEN_ID;
 %token <s> TOKEN_PATH;
@@ -70,10 +70,18 @@ def
         $$->roles = $2;
         $$->user.users = $3;
     }
+    | TOKEN_OBJ id_list perm_list TOKEN_RECURSIVE TOKEN_PATH {
+        $$ = def_create(DEF_OBJ);
+        $$->roles = $2;
+        $$->obj.perms = $3;
+        $$->obj.obj = $5;
+        $$->obj.recursive = 1;
+    }
     | TOKEN_OBJ id_list perm_list TOKEN_PATH {
         $$ = def_create(DEF_OBJ);
         $$->roles = $2;
         $$->obj.perms = $3;
         $$->obj.obj = $4;
+        $$->obj.recursive = 0;
     }
     ;

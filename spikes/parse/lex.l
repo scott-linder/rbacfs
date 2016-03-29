@@ -21,9 +21,10 @@ OBJ  "object:"
 
 COMMA ","
 
-PATH    \/[a-zA-Z0-9_.\\\-/]+
-PERM    [rwx]
-ID      [a-zA-Z0-9_.\\\-/]+
+RECURSIVE       "-r"
+PATH            \/[a-zA-Z0-9_.\\\-/]+
+PERM            [rwx]
+ID              [a-zA-Z0-9_.\\\-/]+
 
 %%
 
@@ -31,6 +32,7 @@ ID      [a-zA-Z0-9_.\\\-/]+
 {USER}          { return TOKEN_USER; }
 {OBJ}           { return TOKEN_OBJ; }
 {COMMA}         { return TOKEN_COMMA; }
+{RECURSIVE}     { return TOKEN_RECURSIVE; }
 {PATH}          { yylval->s = strdup(yytext); return TOKEN_PATH; }
 {PERM}          { yylval->s = strdup(yytext); return TOKEN_PERM; }
 {ID}            { yylval->s = strdup(yytext); return TOKEN_ID; }

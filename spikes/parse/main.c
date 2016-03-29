@@ -19,7 +19,7 @@ int main(void) {
     }
 
     state = yy_scan_string("user: role1,role2 user1", scanner);
-    //state = yy_scan_string("object: role1 r,w /usr", scanner);
+    //state = yy_scan_string("object: role1 r,w -r /usr", scanner);
 
     if (yyparse(&def, scanner)) {
         exit(1);
@@ -51,6 +51,7 @@ int main(void) {
             printf("%s ", slist->s);
         printf("\n");
         printf("\tObject: %s\n", def->obj.obj);
+        printf("\tRecursive? %s\n", def->obj.recursive ? "yes" : "no");
         break;
     }
 
