@@ -1,12 +1,12 @@
 CC = gcc
 CFLAGS = -std=gnu99 -Wall
 LDFLAGS = -lfuse
-MODS = parse fuse
+MODS = parse fuse hashmap
 
 export CC
 export CFLAGS
 
-rbacfs: rbacfs.c parse/lib.a fuse/lib.a
+rbacfs: rbacfs.c parse/lib.a fuse/lib.a hashmap/lib.a
 
 %/lib.a:
 	cd $*; make
