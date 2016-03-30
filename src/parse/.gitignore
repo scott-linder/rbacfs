@@ -1,0 +1,7 @@
+*.o
+lex.c
+lex.h
+main
+parse.c
+parse.h
+*.swp
