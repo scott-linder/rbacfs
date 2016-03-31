@@ -8,7 +8,7 @@
 #include "lib.h"
 
 struct hashmap_entry {
-    uint64_t hash;
+    char *key;
     void *value;
     struct hashmap_entry *next;
 };
@@ -18,6 +18,14 @@ struct hashmap {
 };
 
 #define BUCKET_COUNT (7)
+
+static uint64_t hashmap_hash_s(const char *s) {
+    size_t len = strlen(s);
+    uint64_t hash = len;
+    for (size_t i = 0; i < len; i++)
+        hash += s[i];
+    return hash;
+}
 
 static struct hashmap_entry **hashmap_get_bucket(struct hashmap *hashmap, uint64_t hash) {
     size_t bucket = hash % BUCKET_COUNT;
@@ -30,35 +38,35 @@ struct hashmap *hashmap_create() {
     return hashmap;
 }
 
-void hashmap_set(struct hashmap *hashmap, uint64_t hash, void *value) {
+void *hashmap_set(struct hashmap *hashmap, const char *key, void *value) {
     struct hashmap_entry *new = malloc(sizeof(*new));
-    new->hash = hash;
+    uint64_t hash = hashmap_hash_s(key);
+    new->key = strdup(key);
     new->value = value;
     new->next = NULL;
     struct hashmap_entry **head = hashmap_get_bucket(hashmap, hash);
     if (*head) {
-        struct hashmap_entry *cur = *head;
-        for (; cur->next; cur = cur->next)
-            ;
-        cur->next = new;
+        for (struct hashmap_entry *cur = *head; cur; cur = cur->next) {
+            if (strcmp(cur->key, key) == 0) {
+                void *ret = cur->value;
+                cur->value = value;
+                return ret;
+            }
+            if (!cur->next)
+                cur->next = new;
+        }
     } else {
         *head = new;
-    }
-}
-
-void *hashmap_get(struct hashmap *hashmap, uint64_t hash) {
-    struct hashmap_entry *head = *hashmap_get_bucket(hashmap, hash);
-    for (; head; head = head->next) {
-        if (head->hash == hash)
-            return head->value;
     }
     return NULL;
 }
 
-uint64_t hashmap_hash_s(const char *s) {
-    size_t len = strlen(s);
-    uint64_t hash = len;
-    for (size_t i = 0; i < len; i++)
-        hash += s[i];
-    return hash;
+void *hashmap_get(struct hashmap *hashmap, const char *key) {
+    uint64_t hash = hashmap_hash_s(key);
+    struct hashmap_entry *head = *hashmap_get_bucket(hashmap, hash);
+    for (; head; head = head->next) {
+        if (strcmp(head->key, key) == 0)
+            return head->value;
+    }
+    return NULL;
 }
