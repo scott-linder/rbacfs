@@ -35,18 +35,7 @@ int nu_open(const char *path, struct fuse_file_info *ffi) {
 
 int nu_read(const char *path, char *buf, size_t size, off_t offset, struct
         fuse_file_info *ffi) {
-    char *repeat = "linus is cool ";
-    size_t len = strlen(repeat);
-    size_t i = 0;
-
-    int ret = pread(ffi->fh, buf, size, offset);
-
-    for (char *c = buf; *c; c++) {
-        if (*c != '\n')
-            *c = repeat[i++ % len];
-    }
-
-    return ret;
+    return pread(ffi->fh, buf, size, offset);
 }
 
 int fuse_start(int argc, char *argv[], struct def *def) {
