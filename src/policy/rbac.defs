@@ -1,0 +1,10 @@
+user: role1 user1
+user: role1,role2,role3 user2
+user: role2 user3,user4
+user: role1,role2 user5,user6
+
+object: role1 r -r /usr
+object: role2 r,x -r /lib
+object: role2,role3 r,w,x /usr/file1.txt
+object: role1 x /file3.txt
+object: role1 x /file2.txt
