@@ -12,7 +12,7 @@ struct slist *slist_create(void) {
 void slist_append(struct slist *slist, char *s) {
     for (; slist->next; slist = slist->next)
         ;
-    slist->next = malloc(sizeof(slist->next));
+    slist->next = malloc(sizeof(*slist->next));
     slist->next->s = s;
     slist->next->next = NULL;
 }
