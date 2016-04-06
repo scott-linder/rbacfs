@@ -11,9 +11,9 @@ int main(void) {
     struct list *list = hashmap_get(policy.user_role, "user1");
     assert(strcmp(list_value(list), "role1") == 0);
 
-    struct hashmap *inner = hashmap_get(policy.role_obj, "role1");
+    struct hashmap *inner = hashmap_get(policy.obj_role_perms, "/usr");
     assert(inner);
-    perms *p = hashmap_get(inner, "/usr");
+    perms *p = hashmap_get(inner, "role1");
     assert(p);
     assert(*p == (PERM_READ | PERM_RECURSIVE));
 }

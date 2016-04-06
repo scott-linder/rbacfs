@@ -9,9 +9,9 @@ struct policy {
      */
     struct hashmap *user_role;
     /*
-     * role_obj[role][obj] = perms;
+     * obj_role_perms[obj][role] = perms;
      */
-    struct hashmap *role_obj;
+    struct hashmap *obj_role_perms;
 };
 
 typedef uint8_t perms;

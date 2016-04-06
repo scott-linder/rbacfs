@@ -32,7 +32,7 @@ struct policy policy_build(struct def *def) {
     perms *p;
 
     policy.user_role = hashmap_create();
-    policy.role_obj = hashmap_create();
+    policy.obj_role_perms = hashmap_create();
 
     for (; def; def = def->next) {
         switch (def->type) {
@@ -47,13 +47,13 @@ struct policy policy_build(struct def *def) {
             break;
         case DEF_OBJ:
             p = perms_make(def);
+            struct hashmap *inner;
+            if (!(inner = hashmap_get(policy.obj_role_perms, def->obj.obj))) {
+                inner = hashmap_create();
+                hashmap_set(policy.obj_role_perms, def->obj.obj, inner);
+            }
             for (struct slist *roles = def->roles; roles; roles = roles->next) {
-                struct hashmap *inner;
-                if (!(inner = hashmap_get(policy.role_obj, roles->s))) {
-                    inner = hashmap_create();
-                    hashmap_set(policy.role_obj, roles->s, inner);
-                }
-                hashmap_set(inner, def->obj.obj, p);
+                hashmap_set(inner, roles->s, p);
             }
             break;
         }
