@@ -9,4 +9,4 @@ test: lib.a
 
 .PHONY: clean
 clean:
-	rm -rf lib.a lib.o
+	rm -rf lib.a lib.o test
