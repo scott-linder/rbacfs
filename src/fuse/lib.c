@@ -60,8 +60,12 @@ int nu_open(const char *path, struct fuse_file_info *ffi) {
             perms *perms = hashmap_get(role_perms, list_value(roles));
             if (!perms)
                 continue;
-            // XXX: check ffi->flags and confirm correct perms
-            if (*perms & PERM_READ)
+            int accmode = ffi->flags & O_ACCMODE;
+            if (accmode == O_RDONLY && *perms & PERM_READ)
+                goto granted;
+            else if (accmode == O_WRONLY && *perms & PERM_WRITE)
+                goto granted;
+            else if (*perms & PERM_READ && *perms & PERM_WRITE)
                 goto granted;
         }
     }
@@ -77,6 +81,11 @@ int nu_read(const char *path, char *buf, size_t size, off_t offset, struct
     return pread(ffi->fh, buf, size, offset);
 }
 
+int nu_write(const char *path, const char *buf, size_t size, off_t offset,
+        struct fuse_file_info *ffi) {
+    return pwrite(ffi->fh, buf, size, offset);
+}
+
 int fuse_start(int argc, char *argv[], struct policy policy) {
     if (argc != 3)
         exit(1);
@@ -84,7 +93,8 @@ int fuse_start(int argc, char *argv[], struct policy policy) {
     struct fuse_operations fo = {
         .getattr = nu_getattr,
         .open = nu_open,
-        .read = nu_read
+        .read = nu_read,
+        .write = nu_write,
     };
 
     /* we store the canonical path to the shadowed root as our fuse
