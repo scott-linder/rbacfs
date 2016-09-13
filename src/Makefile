@@ -6,7 +6,7 @@ MODS = parse fuse hashmap list policy
 export CC
 export CFLAGS
 
-rbacfs: rbacfs.c $(addsuffix /lib.a,${MODS})
+rbacfs: rbacfs.c $(addsuffix /lib.a,${MODS}) $(LDFLAGS)
 
 %/lib.a: FORCE
 	cd $*; make
