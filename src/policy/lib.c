@@ -3,6 +3,13 @@
 #include "../hashmap/lib.h"
 #include "../list/lib.h"
 
+/*
+ * perms_make
+ *      IN: A pointer to an object definition.
+ *      OUT: A perms bitmask reflecting the permslist of the given object definition.
+ *      DESCRIPTION: Condenses the linked list permission format obtained from
+ *      the parser into a bitfield representation for fast lookup.
+ */
 perms *perms_make(struct def *def) {
     perms *p = malloc(sizeof(perms));
     *p = 0;
@@ -27,6 +34,14 @@ perms *perms_make(struct def *def) {
     return p;
 }
 
+/*
+ * policy_build
+ *      IN: A list of definitions.
+ *      OUT: A policy object.
+ *      DESCRIPTION: The policy object provides efficient lookups of:
+ *              * Roles given a user, via policy.user_role[user]
+ *              * Perms given an object, via policy.obj_role_perms[obj][role]
+ */
 struct policy policy_build(struct def *def) {
     struct policy policy;
     perms *p;
