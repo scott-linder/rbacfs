@@ -17,8 +17,8 @@ perms *perms_make(struct def *def) {
     if (def->obj.recursive)
         *p |= PERM_RECURSIVE;
 
-    for (struct slist *permslist = def->obj.perms; permslist; permslist = permslist->next) {
-        switch (permslist->s[0]) {
+    for (struct list *permslist = def->obj.perms; permslist; permslist = list_next(permslist)) {
+        switch (list_string(permslist)[0]) {
         case 'r':
             *p |= PERM_READ;
             break;
@@ -52,12 +52,12 @@ struct policy policy_build(struct def *def) {
     for (; def; def = def->next) {
         switch (def->type) {
         case DEF_USER:
-            for (struct slist *users = def->user.users; users; users = users->next) {
-                struct list *list = hashmap_get(policy.user_role, users->s);
-                for (struct slist *roles = def->roles; roles; roles = roles->next) {
-                    list_append(&list, roles->s);
+            for (struct list *users = def->user.users; users; users = list_next(users)) {
+                struct list *list = hashmap_get(policy.user_role, list_string(users));
+                for (struct list *roles = def->roles; roles; roles = list_next(roles)) {
+                    list_append(&list, list_string(roles));
                 }
-                hashmap_set(policy.user_role, users->s, list);
+                hashmap_set(policy.user_role, list_string(users), list);
             }
             break;
         case DEF_OBJ:
@@ -67,8 +67,8 @@ struct policy policy_build(struct def *def) {
                 inner = hashmap_create();
                 hashmap_set(policy.obj_role_perms, def->obj.obj, inner);
             }
-            for (struct slist *roles = def->roles; roles; roles = roles->next) {
-                hashmap_set(inner, roles->s, p);
+            for (struct list *roles = def->roles; roles; roles = list_next(roles)) {
+                hashmap_set(inner, list_string(roles), p);
             }
             break;
         }

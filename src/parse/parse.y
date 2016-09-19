@@ -6,6 +6,7 @@
 #include "def.h"
 #include "parse.h"
 #include "lex.h"
+#include "../list/lib.h"
 
 int yyerror(struct def **def, yyscan_t scanner, const char *msg) {
     fprintf(stderr, "error: %s\n", msg);
@@ -32,7 +33,7 @@ typedef void* yyscan_t;
 
 %union {
     char *s;
-    struct slist *slist;
+    struct list *list;
     struct def *def;
 }
 
@@ -44,8 +45,8 @@ typedef void* yyscan_t;
 %token <s> TOKEN_ID;
 %token <s> TOKEN_PATH;
 
-%type <slist> perm_list
-%type <slist> id_list
+%type <list> perm_list
+%type <list> id_list
 %type <def> def_list
 %type <def> def
 
@@ -56,13 +57,13 @@ input
     ;
 
 perm_list
-    : TOKEN_PERM { $$ = slist_create(); $$->s = $1; }
-    | perm_list TOKEN_COMMA TOKEN_PERM { slist_append($1, $3); }
+    : TOKEN_PERM { $$ = LIST_INIT; list_append(&$$, $1); }
+    | perm_list TOKEN_COMMA TOKEN_PERM { list_append(&$1, $3); }
     ;
 
 id_list
-    : TOKEN_ID { $$ = slist_create(); $$->s = $1; }
-    | id_list TOKEN_COMMA TOKEN_ID { slist_append($1, $3); }
+    : TOKEN_ID { $$ = LIST_INIT; list_append(&$$, $1); }
+    | id_list TOKEN_COMMA TOKEN_ID { list_append(&$1, $3); }
     ;
 
 def_list

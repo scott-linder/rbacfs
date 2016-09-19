@@ -14,6 +14,8 @@ parse.c: parse.y lex.c
 lex.c: lex.l
 	flex lex.l
 
+test: lib.a
+
 .PHONY: clean
 clean:
 	rm -f *.o lex.c lex.h parse.c parse.h lib.o lib.a

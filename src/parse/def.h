@@ -14,31 +14,19 @@ enum def_type {
 };
 
 /*
- * String linked list.
- */
-struct slist {
-    char *s;
-    struct slist *next;
-};
-
-struct slist *slist_create(void);
-void slist_append(struct slist *, char *);
-void slist_destroy(struct slist *);
-
-/*
  * Definition.
  */
 struct def {
     enum def_type type;
 
-    struct slist *roles;
+    struct list *roles;
     union {
         struct {
-            struct slist *users;
+            struct list *users;
         } user;
         struct {
             char *obj;
-            struct slist *perms;
+            struct list *perms;
             int recursive;
         } obj;
     };
