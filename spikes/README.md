@@ -2,6 +2,6 @@ Spikes
 ======
 Ivestigation into the following: 
 
-*Fuse
-*Hash
-*Parse
+* Fuse
+* Hash
+* Parse

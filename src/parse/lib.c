@@ -1,5 +1,6 @@
 /*
- * main.c
+ *  lib.c
+ *      DESCRIPTION: Controls the parsing of rbacs.def
  */
 
 #include <stdio.h>
@@ -9,6 +10,12 @@
 
 int yyparse(struct def **def, yyscan_t scanner);
 
+/*
+ *  rbac_parse_defs
+ *      IN: filename of rbac definitions
+ *      OUT: definitions list
+ *      DESCRIPTION: Receives the rbac definitions filename (created by user) and sends it to lex/bison parser to create the definitions list.
+ */
 struct def *rbac_parse_defs(const char *defs_filename) {
     struct def *def;
     yyscan_t scanner;
