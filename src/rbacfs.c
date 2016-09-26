@@ -4,6 +4,12 @@
 #include "fuse/lib.h"
 #include "policy/lib.h"
 
+/*
+ * main
+ *      DESCRIPTION: Program entrypoint. Coordinates the parse, policy, and
+ *      fuse modules to coordinate reading and interpreting the rbac definition
+ *      and then implementing it in a working filesystem.
+ */
 int main(int argc, char *argv[]) {
     if (argc != 4) {
         fprintf(stderr, "usage: %s mount root rbac.defs\n", argv[0]);
