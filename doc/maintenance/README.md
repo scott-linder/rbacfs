@@ -6,6 +6,8 @@ Documentation for extending the software, intended for C programmers.
 Includes
 --------
 
+* Assumptions about knowledge of audience.
+    * Links to any introductory material.
 * Where to obtain the software.
     * What service is it hosted on.
     * Under what version control system is it maintained.
