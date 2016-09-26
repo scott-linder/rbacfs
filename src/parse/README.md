@@ -1,4 +1,4 @@
-/rbacfs/src/parse
-======
+parse
+=====
 
-File parsing and grammar definitions using Bison and Flex.
+A lexer and parser for an RBAC definition language using Flex and Bison.

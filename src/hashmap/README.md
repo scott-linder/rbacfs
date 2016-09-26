@@ -1,2 +1,4 @@
-#Hashmap
-Simple hashmap implementation to hold the users/perms
+hashmap
+=======
+
+A generic hashmap.
