@@ -15,19 +15,37 @@
 #include "../hashmap/lib.h"
 #include "../list/lib.h"
 
+/*
+ * FUSE permits storing a handle to data associated with the filesystem, which
+ * in our case involves the path to the ghosted directory (`root`) and the RBAC
+ * policy structures (`policy`).
+ *
+ * All paths within our filesystem are "redirected" to equivalent paths
+ * relative to `root`, and are only permitted if the access is allowed by the
+ * `policy`.
+ */
 struct private_data {
     char *root;
     struct policy policy;
 };
 
+/*
+ * get_private_data
+ *      IN: void
+ *      OUT: The private data for the filesystem.
+ *      DESCRIPTION: A convenience function for accessing the fuse private
+ *      data, as it is stored behind a void pointer.
+ */
 struct private_data *get_private_data(void) {
     return (struct private_data *) fuse_get_context()->private_data;
 }
 
 /*
- * Append the given path to the shadowed root, and write into fullpath.
- *
- * Assumes fullpath is of at least size PATH_MAX.
+ * fill_fullpath
+ *      IN: A buffer to fill with the full path; the original path
+ *      OUT: void
+ *      DESCRIPTION: Append the given path to the shadowed root, and write into `fullpath`.
+ *      NOTE: Assumes `fullpath` is of at least size PATH_MAX.
  */
 void fill_fullpath(char *fullpath, const char *path) {
     char *root = get_private_data()->root;
@@ -35,12 +53,27 @@ void fill_fullpath(char *fullpath, const char *path) {
     strncat(fullpath, path, PATH_MAX);
 }
 
+/*
+ * nu_getattr
+ *      DESCRIPTION: Thin wrapper around lstat for the filesystem. No security
+ *      decisions are made.
+ */
 int nu_getattr(const char *path, struct stat *buf) {
     char fullpath[PATH_MAX + 1];
     fill_fullpath(fullpath, path);
     return lstat(fullpath, buf);
 }
 
+/*
+ * nu_open
+ *      DESCRIPTION: Primary mechanism for implementing security policy. This
+ *      function is a wrapper around open for the filesystem. It searches the
+ *      policy structure and implements the access controls by inspecting the
+ *      open mode requested by the user and comparing it to the permissions
+ *      granted to them in the RBAC definitions file.
+ *      RETURN: -EACCESS in the event that the permission is not granted,
+ *      otherwise the return value of open for the same parameters.
+ */
 int nu_open(const char *path, struct fuse_file_info *ffi) {
     struct policy policy = get_private_data()->policy;
     struct fuse_context *fuse_context = fuse_get_context();
@@ -76,16 +109,32 @@ granted:
     return ffi->fh < 0 ? -errno : 0;
 }
 
+/*
+ * nu_read
+ *      DESCRIPTION: Thin wrapper around pread for the filesystem. No security
+ *      decisions are made.
+ */
 int nu_read(const char *path, char *buf, size_t size, off_t offset, struct
         fuse_file_info *ffi) {
     return pread(ffi->fh, buf, size, offset);
 }
 
+/*
+ * nu_read
+ *      DESCRIPTION: Thin wrapper around pwrite for the filesystem. No security
+ *      decisions are made.
+ */
 int nu_write(const char *path, const char *buf, size_t size, off_t offset,
         struct fuse_file_info *ffi) {
     return pwrite(ffi->fh, buf, size, offset);
 }
 
+/*
+ * fuse_start
+ *      DESCRIPTION: Entrypoint into the filesystem. Saves the path arguments
+ *      to the main executable and the policy object as FUSE private data and
+ *      then enters the fuse main loop.
+ */
 int fuse_start(int argc, char *argv[], struct policy policy) {
     if (argc != 3)
         exit(1);
