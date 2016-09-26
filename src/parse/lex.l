@@ -8,7 +8,9 @@
 #include "def.h"
 #include "parse.h"
 %}
-
+/*
+ * Definitions
+ */
 %option outfile="lex.c" header-file="lex.h"
 %option warn nodefault
 %option reentrant noyywrap never-interactive nounistd

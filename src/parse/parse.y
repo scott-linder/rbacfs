@@ -37,6 +37,11 @@ typedef void* yyscan_t;
     struct def *def;
 }
 
+/*
+ * Bison/token definitions
+ *
+ */
+
 %token TOKEN_USER;
 %token TOKEN_OBJ;
 %token TOKEN_COMMA;
@@ -51,6 +56,10 @@ typedef void* yyscan_t;
 %type <def> def
 
 %%
+
+/*
+ * Grammer Rules
+ */
 
 input
     : def_list { *def = $1; }
