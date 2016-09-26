@@ -18,4 +18,4 @@ test: lib.a ../list/lib.a
 
 .PHONY: clean
 clean:
-	rm -f *.o lex.c lex.h parse.c parse.h lib.o lib.a
+	rm -f *.o lex.c lex.h parse.c parse.h lib.o lib.a test
