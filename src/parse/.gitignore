@@ -5,3 +5,4 @@ main
 parse.c
 parse.h
 *.swp
+test

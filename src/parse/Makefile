@@ -14,7 +14,7 @@ parse.c: parse.y lex.c
 lex.c: lex.l
 	flex lex.l
 
-test: lib.a
+test: lib.a ../list/lib.a
 
 .PHONY: clean
 clean:
