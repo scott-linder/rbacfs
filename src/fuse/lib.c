@@ -82,13 +82,22 @@ int nu_open(const char *path, struct fuse_file_info *ffi) {
 
     // XXX: implement recursive perms
     struct hashmap *role_perms;
-    if (!(role_perms = hashmap_get(policy.obj_role_perms, path))) {
+    if (!(role_perms = hashmap_get(policy.obj_role_perms, path)))
         return -EACCES;
-    }
-    // XXX: getpwuid is *not* thread safe
-    struct passwd *passwd = getpwuid(fuse_context->uid);
+
+    struct passwd pwd;
+    struct passwd *result;
+    size_t bufsz = sysconf(_SC_GETPW_R_SIZE_MAX);
+    if (bufsz == -1)
+        return -EACCES;
+    char *buf = malloc(bufsz);
+    if (buf == NULL)
+        return -EACCES;
+    int r = getpwuid_r(fuse_context->uid, &pwd, buf, bufsz, &result);
+    if (result == NULL || r != 0)
+        return -EACCES;
     struct list *roles;
-    if ((roles = hashmap_get(policy.user_role, passwd->pw_name))) {
+    if ((roles = hashmap_get(policy.user_role, pwd.pw_name))) {
         for (; roles; roles = list_next(roles)) {
             perms *perms = hashmap_get(role_perms, list_value(roles));
             if (!perms)
