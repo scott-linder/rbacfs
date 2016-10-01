@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/stat.h>
@@ -103,36 +104,73 @@ int nu_getattr(const char *path, struct stat *buf) {
 int nu_open(const char *path, struct fuse_file_info *ffi) {
     struct policy policy = get_private_data()->policy;
     struct fuse_context *fuse_context = fuse_get_context();
+    char *mpath = NULL;
+    char *pw_name = NULL;
+    bool recursed = false;
+
+    // We will need to mutate the path to strip components off of it when
+    // checking for recursive permissions.
+    mpath = strdup(path);
+    if (!mpath)
+        goto denied;
+
     char fullpath[PATH_MAX + 1];
-    fill_fullpath(fullpath, path);
+    fill_fullpath(fullpath, mpath);
 
-    // XXX: implement recursive perms
-    struct hashmap *role_perms;
-    if (!(role_perms = hashmap_get(policy.obj_role_perms, path)))
-        return -EACCES;
+    pw_name = get_pw_name(fuse_context->uid);
+    if (!pw_name)
+        goto denied;
 
-    char *pw_name = get_pw_name(fuse_context->uid);
-    if (pw_name == NULL)
-        return -EACCES;
-    struct list *roles;
-    if ((roles = hashmap_get(policy.user_role, pw_name))) {
-        for (; roles; roles = list_next(roles)) {
-            perms *perms = hashmap_get(role_perms, list_value(roles));
-            if (!perms)
-                continue;
-            int accmode = ffi->flags & O_ACCMODE;
-            if (accmode == O_RDONLY && *perms & PERM_READ)
-                goto granted;
-            else if (accmode == O_WRONLY && *perms & PERM_WRITE)
-                goto granted;
-            else if (*perms & PERM_READ && *perms & PERM_WRITE)
-                goto granted;
+    // We check for recursive perms by continuing to check the permission of
+    // every path at and above the requested path. We start with the full path
+    // (recursed==false) and so do not require the recursive permission on the
+    // object. After that, we strip off one path component at a time and
+    // require the recursive permission on each object. Finally, if we get down
+    // to the root object ("/") and do not grant access, we deny access.
+    for (;;) {
+        struct hashmap *role_perms;
+        if (role_perms = hashmap_get(policy.obj_role_perms, mpath)) {
+            struct list *roles;
+            if ((roles = hashmap_get(policy.user_role, pw_name))) {
+                for (; roles; roles = list_next(roles)) {
+                    perms *perms = hashmap_get(role_perms, list_value(roles));
+                    if (!perms)
+                        continue;
+                    if (recursed && !(*perms & PERM_RECURSIVE))
+                        continue;
+                    int accmode = ffi->flags & O_ACCMODE;
+                    if (accmode == O_RDONLY && *perms & PERM_READ)
+                        goto granted;
+                    else if (accmode == O_WRONLY && *perms & PERM_WRITE)
+                        goto granted;
+                    else if (*perms & PERM_READ && *perms & PERM_WRITE)
+                        goto granted;
+                }
+            }
+        }
+        if (strcmp("/", mpath) == 0) {
+            goto denied;
+        } else {
+            recursed = true;
+            char *slash = strrchr(mpath, '/');
+            // The last case is special because unix reuses the slash character
+            // to both separate paths and to represent the root path. In the
+            // latter case we just null out the character after the root path,
+            // which would only fail for the empty string, which we never
+            // receive.
+            if (slash == mpath)
+                slash++;
+            *slash = '\0';
         }
     }
+
+denied:
+    free(mpath);
     free(pw_name);
     return -EACCES;
 
 granted:
+    free(mpath);
     free(pw_name);
     ffi->fh = open(fullpath, ffi->flags);
     return ffi->fh < 0 ? -errno : 0;
