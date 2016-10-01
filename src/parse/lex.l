@@ -24,7 +24,7 @@ OBJ  "object:"
 COMMA ","
 
 RECURSIVE       "-r"
-PATH            \/[a-zA-Z0-9_.\\\-/]+
+PATH            \/[a-zA-Z0-9_.\\\-/]*
 PERM            [rwx]
 ID              [a-zA-Z0-9_.\\\-/]+
 

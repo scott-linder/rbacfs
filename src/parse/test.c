@@ -123,4 +123,16 @@ int main(void) {
     assert(strcmp(list_string(perms), "x") == 0);
     assert(!list_next(perms));
     assert(!def->obj.recursive);
+
+    /* object: role1 r -r / */
+    assert(def = def->next);
+    assert(def->type == DEF_OBJ);
+    assert(roles = def->roles);
+    assert(strcmp(list_string(roles), "role1") == 0);
+    assert(!list_next(roles));
+    assert(strcmp(def->obj.obj, "/") == 0);
+    assert(perms = def->obj.perms);
+    assert(strcmp(list_string(perms), "r") == 0);
+    assert(!list_next(perms));
+    assert(def->obj.recursive);
 }
