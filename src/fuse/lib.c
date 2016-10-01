@@ -54,6 +54,32 @@ void fill_fullpath(char *fullpath, const char *path) {
 }
 
 /*
+ * get_pw_name
+ *      IN: uid of the user to lookup
+ *      OUT: The username of the user, if any, otherwise NULL if the user does
+ *      note exist or the lookup failed
+ *      DESCRIPTION: Get the username of a user from their uid
+ *      NOTE: Is reenterant and thread safe. The returned string is owned by
+ *      the caller and must be free'd
+ */
+char *get_pw_name(uid_t uid) {
+    struct passwd pwd;
+    struct passwd *result;
+    size_t bufsz = sysconf(_SC_GETPW_R_SIZE_MAX);
+    if (bufsz == -1)
+        return NULL;
+    char *buf = malloc(bufsz);
+    if (buf == NULL)
+        return NULL;
+    int r = getpwuid_r(uid, &pwd, buf, bufsz, &result);
+    if (result == NULL || r != 0)
+        return NULL;
+    char *pw_name = strdup(pwd.pw_name);
+    free(buf);
+    return pw_name;
+}
+
+/*
  * nu_getattr
  *      DESCRIPTION: Thin wrapper around lstat for the filesystem. No security
  *      decisions are made.
@@ -85,19 +111,11 @@ int nu_open(const char *path, struct fuse_file_info *ffi) {
     if (!(role_perms = hashmap_get(policy.obj_role_perms, path)))
         return -EACCES;
 
-    struct passwd pwd;
-    struct passwd *result;
-    size_t bufsz = sysconf(_SC_GETPW_R_SIZE_MAX);
-    if (bufsz == -1)
-        return -EACCES;
-    char *buf = malloc(bufsz);
-    if (buf == NULL)
-        return -EACCES;
-    int r = getpwuid_r(fuse_context->uid, &pwd, buf, bufsz, &result);
-    if (result == NULL || r != 0)
+    char *pw_name = get_pw_name(fuse_context->uid);
+    if (pw_name == NULL)
         return -EACCES;
     struct list *roles;
-    if ((roles = hashmap_get(policy.user_role, pwd.pw_name))) {
+    if ((roles = hashmap_get(policy.user_role, pw_name))) {
         for (; roles; roles = list_next(roles)) {
             perms *perms = hashmap_get(role_perms, list_value(roles));
             if (!perms)
@@ -111,9 +129,11 @@ int nu_open(const char *path, struct fuse_file_info *ffi) {
                 goto granted;
         }
     }
+    free(pw_name);
     return -EACCES;
 
 granted:
+    free(pw_name);
     ffi->fh = open(fullpath, ffi->flags);
     return ffi->fh < 0 ? -errno : 0;
 }
