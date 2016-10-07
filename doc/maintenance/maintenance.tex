@@ -1,0 +1,112 @@
+\documentclass[11pt,oneside,letterpaper,twocolumn]{article}
+
+\usepackage{hyperref}
+\usepackage{listings}
+
+\begin{document}
+
+\title{
+    Role-Based Access Control Filesystem\\
+    (RBACFS)
+}
+\author{
+    Scott Linder\\
+    \and
+    Ryan DePrekel\\
+    \and
+    Juston Lanyon
+}
+\date{\today}
+
+\maketitle
+
+\begin{abstract}
+This document describes the purpose, implementation, and maintenance of the Role-Based Access Control Filesystem (RBACFS) software. Any assumed
+technical knowledge is stated, including links to relevant resources.
+Information on obtaining source code, installing prerequisites, and
+building/testing the software is provided. Finally the structure of the
+codebase, including descriptions of all modules and their inter-dependencies,
+is explained.
+\end{abstract}
+
+\section{Technologies}
+
+Familiarity with all technologies employed in the development and deployment of
+RBACFS is required to get the most out of this document.
+
+\subsection{Git}
+
+All source code and documentation is maintained in the Git version control
+system.
+
+\subsection{Language and Compiler}
+
+RBACFS is developed exclusively in the C programming language, using the GNU
+Compiler Collection (GCC) compiler. The C standard targetted is {\tt c99} with
+GNU extensions, known as {\tt gnu99}.
+
+\subsection{Make}
+
+GNU Make is used to compile both program and documentation source code into
+usable programs and documents.
+
+\subsection{FUSE}
+
+Developing a filesystem typically involves modifying kernel code via loadable
+kernel modules. Security vulnerabilities in this code effect the security and
+stability of the entire system, and all running programs. To avoid this
+considerable risk, and to ease development and modification of the RBACFS, it
+is written against the Filesystem in Userspace (FUSE) kernel interface. This
+allows the filesystem to execute in underprivleged userspace, while still
+providing the same interface as a filesystem written as a kernel module.
+
+\subsection{Operating System}
+
+Any operating system which supports a gnu99 compatible compiler, and version 26
+of the FUSE kernel interface should be capable of compiling and running RBACFS.
+However, the system has be tested exclusively on 32-bit versions of Kali Linux
+2016.2 and Ubuntu Linux 14.04. When migrating to a new environment, it is
+imperative that the full test suite be run to ensure basic functionality.
+
+\section{Obtaining the Software}
+
+The current central git repository is hosted at
+\url{https://github.com/scott-linder/rbacfs} and contains all source code and
+documentation.
+
+\section{Building the Software}
+
+\subsection{Prerequisites}
+
+TODO
+
+\subsection{Configure}
+
+There are no configuration steps to build the software.
+
+\subsection{Make}
+
+The software can be built from the {\tt src/} directory with the following
+command:
+\begin{lstlisting}
+make
+\end{lstlisting}
+which will create a single binary named {\tt rbacfs}.
+
+\subsection{Install}
+
+TODO
+
+\section{Security Considerations}
+
+TODO
+
+\section{System Overview}
+
+TODO
+
+\section{Updates}
+
+TODO
+
+\end{document}
