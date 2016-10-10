@@ -11,7 +11,6 @@
 /* recommended version, as per fuse.h */
 #define FUSE_USE_VERSION 26
 #include <fuse.h>
-#include "../parse/lib.h"
 #include "../policy/lib.h"
 #include "../hashmap/lib.h"
 #include "../list/lib.h"
