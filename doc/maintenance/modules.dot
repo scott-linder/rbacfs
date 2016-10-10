@@ -1,0 +1,13 @@
+digraph rbacfs {
+fuse -> policy;
+fuse -> hashmap;
+fuse -> list;
+policy -> parse;
+policy -> hashmap;
+policy -> list;
+parse;
+parse -> hashmap;
+parse -> list;
+hashmap;
+list;
+}
