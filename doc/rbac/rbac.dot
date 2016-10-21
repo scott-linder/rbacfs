@@ -1,0 +1,34 @@
+digraph rbac {
+rankdir=LR
+
+subgraph cluster_users {
+    style=filled
+    color=lightgrey
+    label=Users
+    Alice, Bob, Charlie [shape=box,style=filled,color=white]
+}
+
+subgraph cluster_roles {
+    style=filled
+    color=lightgrey
+    label=Roles
+    Admin, User [shape=oval,style=filled,color=white]
+}
+
+subgraph cluster_objects {
+    style=filled
+    color=lightgrey
+    label=Objects
+    Passwords, Logs, Reports, Documents [shape=folder,style=filled,color=white]
+}
+
+Alice -> Admin
+Alice -> User
+Bob -> User
+Charlie -> User
+
+Admin -> Passwords
+Admin -> Logs
+User -> Reports
+User -> Documents
+}
