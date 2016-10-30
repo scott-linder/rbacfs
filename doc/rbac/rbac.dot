@@ -27,8 +27,9 @@ Alice -> User
 Bob -> User
 Charlie -> User
 
-Admin -> Passwords
-Admin -> Logs
-User -> Reports
-User -> Documents
+Admin -> Passwords [label="rw"]
+Admin -> Logs [label="r"]
+Admin -> Reports [label="rw"]
+User -> Reports [label="r"]
+User -> Documents [label="rw"]
 }
