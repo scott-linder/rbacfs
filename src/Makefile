@@ -1,6 +1,8 @@
 CC = gcc
 CFLAGS = -std=gnu99 -Wall
 LDFLAGS = -lfuse
+# Default installation prefix
+PREFIX ?= /usr/local
 # List of all module directories
 MODS = parse fuse hashmap list policy
 # List of all module libraries
@@ -28,6 +30,11 @@ test: $(LIBS)
 # force them to check if their lib.a is required.
 %/lib.a: FORCE
 	cd $*; make
+
+# Install to /usr/local/bin
+.PHONY: install
+install:
+	install -m 0755 rbacfs ${PREFIX}/bin
 
 # We delgate cleaning to each submodule.
 .PHONY: clean
