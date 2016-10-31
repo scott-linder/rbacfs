@@ -1,7 +1,8 @@
-\documentclass[11pt,oneside,letterpaper,twocolumn]{article}
+\documentclass[11pt,oneside,letterpaper]{article}
 
 \usepackage{hyperref}
 \usepackage{listings}
+\usepackage{graphicx}
 
 \begin{document}
 
@@ -21,12 +22,12 @@
 \maketitle
 
 \begin{abstract}
-This document describes the purpose, implementation, and maintenance of the Role-Based Access Control Filesystem (RBACFS) software. Any assumed
-technical knowledge is stated, including links to relevant resources.
-Information on obtaining source code, installing prerequisites, and
-building/testing the software is provided. Finally the structure of the
-codebase, including descriptions of all modules and their inter-dependencies,
-is explained.
+This document describes the purpose, implementation, and maintenance of the
+Role-Based Access Control Filesystem (RBACFS) software. Any assumed technical
+knowledge is stated, including links to relevant resources. Information on
+obtaining source code, installing prerequisites, and building/testing the
+software is provided. Finally the structure of the codebase, including
+descriptions of all modules and their inter-dependencies, is explained.
 \end{abstract}
 
 \section{Technologies}
@@ -37,52 +38,71 @@ RBACFS is required to get the most out of this document.
 \subsection{Git}
 
 All source code and documentation is maintained in the Git version control
-system.
+system. Downloads for all major platorms are available from the official
+homepage at \url{https://git-scm.com/}.
+
+The current canonical repository for the software is publically hosted at
+\url{https://github.com/scott-linder/rbacfs}.
 
 \subsection{Language and Compiler}
 
 RBACFS is developed exclusively in the C programming language, using the GNU
 Compiler Collection (GCC) compiler. The C standard targetted is {\tt c99} with
-GNU extensions, known as {\tt gnu99}.
+GNU extensions, known as {\tt gnu99}. The version 6.2.1 of {\tt gcc} has been
+used during development and testing.
 
 \subsection{Make}
 
 GNU Make is used to compile both program and documentation source code into
-usable programs and documents.
+usable programs and documents. Most directories in the source tree, save those
+containing only static documents, contain one {\tt Makefile}. The version 4.2.1
+has been used during development, but any modern version of GNU Make should
+suffice.
 
 \subsection{FUSE}
 
 Developing a filesystem typically involves modifying kernel code via loadable
 kernel modules. Security vulnerabilities in this code effect the security and
 stability of the entire system, and all running programs. To avoid this
-considerable risk, and to ease development and modification of the RBACFS, it
+considerable risk, and to ease development and modification of RBACFS, it
 is written against the Filesystem in Userspace (FUSE) kernel interface. This
-allows the filesystem to execute in underprivleged userspace, while still
+allows the filesystem to execute in underprivileged userspace, while still
 providing the same interface as a filesystem written as a kernel module.
+
+At least a basic understanding of the FUSE API is required to make changes
+to FUSE-specific code in RBACFS, although every attempt has was made
+during design and implementation to isolate this code within one module.
+Resources describing the use of FUSE are available online, such as
+\url{https://lastlog.de/misc/fuse-doc/doc/html/}.
 
 \subsection{Operating System}
 
 Any operating system which supports a gnu99 compatible compiler, and version 26
 of the FUSE kernel interface should be capable of compiling and running RBACFS.
 However, the system has be tested exclusively on 32-bit versions of Kali Linux
-2016.2 and Ubuntu Linux 14.04. When migrating to a new environment, it is
+2016.2 and Ubuntu Linux 16.04. When migrating to a new environment, it is
 imperative that the full test suite be run to ensure basic functionality.
 
 \section{Obtaining the Software}
+\label{sec:obtain}
 
 The current central git repository is hosted at
 \url{https://github.com/scott-linder/rbacfs} and contains all source code and
 documentation.
 
 \section{Building the Software}
+\label{sec:build}
 
 \subsection{Prerequisites}
 
-TODO
+All development prerequisites have been mentioned above. These include
+Linux, {\tt gcc}, FUSE, and {\tt make}.
 
 \subsection{Configure}
 
-There are no configuration steps to build the software.
+There are no separate configuration steps to build the software. As only a
+limited set of operating systems are directly supported, the software is
+already configured to build and function properly.
 
 \subsection{Make}
 
@@ -95,18 +115,118 @@ which will create a single binary named {\tt rbacfs}.
 
 \subsection{Install}
 
-TODO
+The software can be installed from the {\tt src/} directory after it has
+been built with the following command:
+\begin{lstlisting}
+sudo make install
+\end{lstlisting}
+which will install the binary to {\tt /usr/local/bin}.
+
+The installation prefix may be overridden by setting the {\tt PREFIX}
+environment variable (the default being {\tt /usr/local}.) For example,
+if the desired installation directory is {\tt /usr/bin}, the following
+command may be used:
+\begin{lstlisting}
+sudo env PREFIX=/usr make install
+\end{lstlisting}
 
 \section{Security Considerations}
 
-TODO
+RBACFS cannot provide true mandatory access control at the VFS level. This
+means it cannot actually enforce access control on top of existing filesystems
+(e.g. ext4). In order to emulate this behavior, RBACFS ``shadows'' existing
+directory hierarchies, applying mandatory control first and then passing
+requests through to an existing filesystem.
+
+Requests are thus also subject to discretionary access control checks
+based on the effective {\tt uid} and {\tt gid} of the {\tt rbacfs} process.
+
+One way to emulate true mandatory controls is to create a dedicated {\tt
+rbacfs} user and group to run the process, change the owner and group of all
+files to be protected to {\tt rbacfs}, and set all permissions to {\tt 0700}.
+
+Thus, only the {\tt rbacfs} user (and the {\tt root} user) are able
+to access these files, requiring all other users to go through the
+shadowed version which implements RBAC.
 
 \section{System Overview}
 
-TODO
+\subsection{Modules}
+
+The software is divided into internal libraries called ``modules''. The
+dependencies of these modules are as shown in figure \ref{fig:modules}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{modules.png}
+    \label{fig:modules}
+    \caption{Module dependencies}
+\end{figure}
+
+\subsubsection{fuse}
+
+The {\tt fuse} module communicates with the FUSE library to actually mount
+the filesystem and implement the RBAC policy in the respective filesystem
+system calls.
+
+\subsubsection{policy}
+
+The {\tt policy} module converts the parse tree from the {\tt parse} module
+into and searchable datastructure to efficiently service queries made by the
+{\tt fuse} module.
+
+The two primary interfaces provided are the {\tt user\_role} and {\tt obj\_role\_perms} hashmaps. Given a user, the {\tt user\_role} hashmap
+returns a list of roles assigned to that user. Given an object and a role,
+the {\tt obj\_role\_perms} hashmap returns a list of permissions the given
+role has to the given object.
+
+\subsubsection{parse}
+
+The {\tt parse} module reads the RBAC definition file provided by the user
+and lexes and parses it into a list of definition structs. The libraries
+used for lexing and parsing are Flex and Bison, respectively.
+
+The grammar of the definition language, in EBNF, is
+
+\begin{lstlisting}
+<input> ::= <def-list>
+<def-list> ::= <def> | <def-list> <def>
+<def> ::= "user: " <id-list> <id-list>
+            | "object: " <id-list> <perm-list> <opt-recursive> <path>
+<id-list> ::= <id> | <id-list> "," <id>
+<perm-list> ::= <perm> | <perm-list> "," <perm>
+<opt-recursive> ::= "-r" | ""
+<path> ::= /[a-zA-Z0-9_.\-/]*
+<id> ::= [a-zA-Z0-9_.\-/]+
+<perm> ::= "r" | "w" | "x"
+\end{lstlisting}
+
+\subsubsection{list and hashmap}
+
+The final two modules implement simple, generic versions of a linked
+list and hashmap, both of which are used repeatedly throughout the
+other modules.
+
+\subsection{Module Structure}
+
+Each module contains a {\tt Makefile}, {\tt lib.c}, {\tt lib.h}, and any other
+source files required to build the library. Each {\tt Makefile} contains a rule
+for building {\tt lib.a}, a static library which exports at least those
+functions found in {\tt lib.h}. Thus, modules may depend on each other's {\tt
+lib.a} and discover function prototypes in each other's {\tt lib.h}.
+
+\subsection{Control Flow}
+
+The program entry point is defined in {\tt rbacfs.c} in the root of {\tt src/}. The last argument is used as a filename for the {\tt parse} module to
+generate a list of definitions, and then definitions are passed to the
+{\tt policy} module. Finally, the remaining commandline arguments, along
+with the policy structure, are sent to the {\tt fuse} module, which
+mounts the filesystem and begins listening for filesystem accesses.
 
 \section{Updates}
 
-TODO
+Updates can be applied simply by going through the same set of steps found
+in sections \ref{sec:obtain} and \ref{sec:build} above. Re-installation is
+equivalent to updating.
 
 \end{document}
