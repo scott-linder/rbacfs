@@ -11,7 +11,7 @@
  *      and then implementing it in a working filesystem.
  */
 int main(int argc, char *argv[]) {
-    if (argc != 4) {
+    if (argc < 4) {
         fprintf(stderr, "usage: %s mount root rbac.defs\n", argv[0]);
         exit(1);
     }

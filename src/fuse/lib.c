@@ -202,7 +202,7 @@ int nu_write(const char *path, const char *buf, size_t size, off_t offset,
  *      then enters the fuse main loop.
  */
 int fuse_start(int argc, char *argv[], struct policy policy) {
-    if (argc != 3)
+    if (argc < 3)
         exit(1);
 
     struct fuse_operations fo = {
