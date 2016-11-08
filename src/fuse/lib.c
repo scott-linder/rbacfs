@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <limits.h>
+#include <syslog.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
@@ -101,6 +102,8 @@ int nu_getattr(const char *path, struct stat *buf) {
  *      otherwise the return value of open for the same parameters.
  */
 int nu_open(const char *path, struct fuse_file_info *ffi) {
+    syslog(LOG_INFO, "entering open(\"%s\")\n", path);
+
     struct policy policy = get_private_data()->policy;
     struct fuse_context *fuse_context = fuse_get_context();
     char *mpath = NULL;
@@ -112,13 +115,16 @@ int nu_open(const char *path, struct fuse_file_info *ffi) {
     mpath = strdup(path);
     if (!mpath)
         goto denied;
+    syslog(LOG_INFO, "mpath=%s\n", mpath);
 
     char fullpath[PATH_MAX + 1];
     fill_fullpath(fullpath, mpath);
+    syslog(LOG_INFO, "fullpath=%s\n", fullpath);
 
     pw_name = get_pw_name(fuse_context->uid);
     if (!pw_name)
         goto denied;
+    syslog(LOG_INFO, "pw_name=%s\n", pw_name);
 
     // We check for recursive perms by continuing to check the permission of
     // every path at and above the requested path. We start with the full path
@@ -164,11 +170,13 @@ int nu_open(const char *path, struct fuse_file_info *ffi) {
     }
 
 denied:
+    syslog(LOG_INFO, "exiting open with access DENIED");
     free(mpath);
     free(pw_name);
     return -EACCES;
 
 granted:
+    syslog(LOG_INFO, "exiting open with access GRANTED");
     free(mpath);
     free(pw_name);
     ffi->fh = open(fullpath, ffi->flags);
