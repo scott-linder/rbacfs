@@ -131,7 +131,7 @@ bool has_access(const char *path, struct fuse_file_info *ffi) {
         struct hashmap *role_perms;
         if (role_perms = hashmap_get(policy.obj_role_perms, mpath)) {
             struct list *roles;
-            if ((roles = hashmap_get(policy.user_role, pw_name))) {
+            if ((roles = hashmap_get(policy.user_roles, pw_name))) {
                 for (; roles; roles = list_next(roles)) {
                     perms *perms = hashmap_get(role_perms, list_value(roles));
                     if (!perms)

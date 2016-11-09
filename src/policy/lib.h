@@ -5,9 +5,9 @@
 #include "../hashmap/lib.h"
 struct policy {
     /*
-     * user_role[user] = roles;
+     * user_roles[user] = roles;
      */
-    struct hashmap *user_role;
+    struct hashmap *user_roles;
     /*
      * obj_role_perms[obj][role] = perms;
      */

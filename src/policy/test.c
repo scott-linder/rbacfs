@@ -7,49 +7,49 @@
 int main(void) {
     struct def *def = rbac_parse_defs("rbac.defs");
     struct policy policy = policy_build(def);
-    struct list *user_role;
+    struct list *user_roles;
     struct hashmap *role;
     perms *p;
 
     /* user: role1 user1 */
-    user_role = hashmap_get(policy.user_role, "user1");
-    assert(user_role);
-    assert(strcmp(list_value(user_role), "role1") == 0);
-    assert(!list_next(user_role));
+    user_roles = hashmap_get(policy.user_roles, "user1");
+    assert(user_roles);
+    assert(strcmp(list_value(user_roles), "role1") == 0);
+    assert(!list_next(user_roles));
     /* user: role1,role2,role3 user2 */
-    user_role = hashmap_get(policy.user_role, "user2");
-    assert(user_role);
-    assert(strcmp(list_value(user_role), "role1") == 0);
-    assert(user_role = list_next(user_role));
-    assert(strcmp(list_value(user_role), "role2") == 0);
-    assert(user_role = list_next(user_role));
-    assert(strcmp(list_value(user_role), "role3") == 0);
-    assert(!list_next(user_role));
+    user_roles = hashmap_get(policy.user_roles, "user2");
+    assert(user_roles);
+    assert(strcmp(list_value(user_roles), "role1") == 0);
+    assert(user_roles = list_next(user_roles));
+    assert(strcmp(list_value(user_roles), "role2") == 0);
+    assert(user_roles = list_next(user_roles));
+    assert(strcmp(list_value(user_roles), "role3") == 0);
+    assert(!list_next(user_roles));
     /* user: role2 user3,user4 */
-    user_role = hashmap_get(policy.user_role, "user3");
-    assert(user_role);
-    assert(strcmp(list_value(user_role), "role2") == 0);
-    assert(!list_next(user_role));
-    user_role = hashmap_get(policy.user_role, "user4");
-    assert(user_role);
-    assert(strcmp(list_value(user_role), "role2") == 0);
-    assert(!list_next(user_role));
+    user_roles = hashmap_get(policy.user_roles, "user3");
+    assert(user_roles);
+    assert(strcmp(list_value(user_roles), "role2") == 0);
+    assert(!list_next(user_roles));
+    user_roles = hashmap_get(policy.user_roles, "user4");
+    assert(user_roles);
+    assert(strcmp(list_value(user_roles), "role2") == 0);
+    assert(!list_next(user_roles));
     /* user: role1,role2 user5,user6 */
-    user_role = hashmap_get(policy.user_role, "user5");
-    assert(user_role);
-    assert(strcmp(list_value(user_role), "role1") == 0);
-    assert(user_role = list_next(user_role));
-    assert(strcmp(list_value(user_role), "role2") == 0);
-    assert(!list_next(user_role));
-    user_role = hashmap_get(policy.user_role, "user6");
-    assert(user_role);
-    assert(strcmp(list_value(user_role), "role1") == 0);
-    assert(user_role = list_next(user_role));
-    assert(strcmp(list_value(user_role), "role2") == 0);
-    assert(!list_next(user_role));
+    user_roles = hashmap_get(policy.user_roles, "user5");
+    assert(user_roles);
+    assert(strcmp(list_value(user_roles), "role1") == 0);
+    assert(user_roles = list_next(user_roles));
+    assert(strcmp(list_value(user_roles), "role2") == 0);
+    assert(!list_next(user_roles));
+    user_roles = hashmap_get(policy.user_roles, "user6");
+    assert(user_roles);
+    assert(strcmp(list_value(user_roles), "role1") == 0);
+    assert(user_roles = list_next(user_roles));
+    assert(strcmp(list_value(user_roles), "role2") == 0);
+    assert(!list_next(user_roles));
     /* unknown user */
-    user_role = hashmap_get(policy.user_role, "user7");
-    assert(!user_role);
+    user_roles = hashmap_get(policy.user_roles, "user7");
+    assert(!user_roles);
 
     /* object: role1 r -r /usr */
     role = hashmap_get(policy.obj_role_perms, "/usr");

@@ -39,25 +39,25 @@ perms *perms_make(struct def *def) {
  *      IN: A list of definitions.
  *      OUT: A policy object.
  *      DESCRIPTION: The policy object provides efficient lookups of:
- *              * Roles given a user, via policy.user_role[user]
+ *              * Roles given a user, via policy.user_roles[user]
  *              * Perms given an object, via policy.obj_role_perms[obj][role]
  */
 struct policy policy_build(struct def *def) {
     struct policy policy;
     perms *p;
 
-    policy.user_role = hashmap_create();
+    policy.user_roles = hashmap_create();
     policy.obj_role_perms = hashmap_create();
 
     for (; def; def = def->next) {
         switch (def->type) {
         case DEF_USER:
             for (struct list *users = def->user.users; users; users = list_next(users)) {
-                struct list *list = hashmap_get(policy.user_role, list_string(users));
+                struct list *list = hashmap_get(policy.user_roles, list_string(users));
                 for (struct list *roles = def->roles; roles; roles = list_next(roles)) {
                     list_append(&list, list_string(roles));
                 }
-                hashmap_set(policy.user_role, list_string(users), list);
+                hashmap_set(policy.user_roles, list_string(users), list);
             }
             break;
         case DEF_OBJ:
