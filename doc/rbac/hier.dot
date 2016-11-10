@@ -1,0 +1,7 @@
+graph hier {
+rankdir=LR
+
+Users -- Roles [label="User\nAssignment"]
+Roles -- Permissions [label="Permission\nAssignment"]
+Roles -- Roles [label="Role\nHierarchy"]
+}

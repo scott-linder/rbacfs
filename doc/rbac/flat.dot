@@ -1,0 +1,6 @@
+graph flat {
+rankdir=LR
+
+Users -- Roles [label="User\nAssignment"]
+Roles -- Permissions [label="Permission\nAssignment"]
+}
