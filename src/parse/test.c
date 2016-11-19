@@ -4,6 +4,9 @@
 #include "../list/lib.h"
 
 int main(void) {
+    /* non existing file */
+    assert(rbac_parse_defs("notafile") == NULL);
+
     struct def *def = rbac_parse_defs("rbac.defs");
     struct list *roles, *users, *perms;
 
