@@ -3,6 +3,7 @@
 #include <syslog.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/stat.h>
@@ -251,8 +252,6 @@ int nu_write(const char *path, const char *buf, size_t size, off_t offset,
  *      then enters the fuse main loop.
  */
 int fuse_start(int argc, char *argv[], struct policy policy) {
-    if (argc < 3)
-        exit(1);
 
     struct fuse_operations fo = {
         .getattr = nu_getattr,
@@ -266,6 +265,10 @@ int fuse_start(int argc, char *argv[], struct policy policy) {
     /* we store the canonical path to the shadowed root as our fuse
      * private_data, and remove it from argv so fuse_main ignores it */
     char *root = realpath(argv[--argc], NULL);
+    if (!root) {
+        perror("invalid root");
+        exit(1);
+    }
     argv[argc] = NULL;
 
     struct private_data private_data = {
