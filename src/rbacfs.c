@@ -17,6 +17,10 @@ int main(int argc, char *argv[]) {
     }
 
     struct def *defs = rbac_parse_defs(argv[--argc]);
+    if (!defs) {
+        fprintf(stderr, "error: invalid definitions file: %s\n", argv[argc]);
+        exit(1);
+    }
     argv[argc] = NULL;
 
     struct policy policy = policy_build(defs);
