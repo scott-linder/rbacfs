@@ -75,6 +75,9 @@ during design and implementation to isolate this code within one module.
 Resources describing the use of FUSE are available online, such as
 \url{https://lastlog.de/misc/fuse-doc/doc/html/}.
 
+Version 26 of the FUSE API is required to run RBACFS. This is available
+in version 2.9.7 of libfuse.
+
 \subsection{Operating System}
 
 Any operating system which supports a gnu99 compatible compiler, and version 26
@@ -96,7 +99,15 @@ documentation.
 \subsection{Prerequisites}
 
 All development prerequisites have been mentioned above. These include
-Linux, {\tt gcc}, FUSE, and {\tt make}.
+Linux, {\tt gcc}, FUSE, and {\tt make}. The full list includes:
+
+\begin{itemize}
+    \item gcc 6.2.1
+    \item make 4.2.1
+    \item libfuse 2.9.7
+    \item virtualbox 4.3.36
+    \item Kali Linux 2016.2 {\it or} Ubuntu Linux 16.04
+\end{itemize}
 
 \subsection{Configure}
 
@@ -115,12 +126,12 @@ which will create a single binary named {\tt rbacfs}.
 
 \subsection{Install}
 
-The software can be installed from the {\tt src/} directory after it has
-been built with the following command:
+The software can optionally be installed from the {\tt src/} directory after it
+has been built with the following command:
 \begin{lstlisting}
 sudo make install
 \end{lstlisting}
-which will install the binary to {\tt /usr/local/bin}.
+which will simply copy the {\tt rbacfs} binary to {\tt /usr/local/bin}.
 
 The installation prefix may be overridden by setting the {\tt PREFIX}
 environment variable (the default being {\tt /usr/local}.) For example,
