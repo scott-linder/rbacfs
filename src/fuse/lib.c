@@ -97,12 +97,12 @@ int nu_getattr(const char *path, struct stat *buf) {
  * has_access
  *      DESCRIPTION: Primary mechanism for implementing security policy.
  *      Checks if a given path is available to the current user with the
- *      requested permissions (found in struct fuse_file_info).
+ *      requested permissions (O_RDONLY, O_WRONLY, O_RDWR).
  *      It searches the policy structure and implements the access controls by
  *      inspecting the open mode requested by the user and comparing it to the
  *      permissions granted to them in the RBAC definitions file.
  */
-bool has_access(const char *path, struct fuse_file_info *ffi) {
+bool has_access(const char *path, int accmode) {
     syslog(LOG_INFO, "entering has_access(\"%s\")\n", path);
     struct policy policy = get_private_data()->policy;
     struct fuse_context *fuse_context = fuse_get_context();
@@ -139,7 +139,6 @@ bool has_access(const char *path, struct fuse_file_info *ffi) {
                         continue;
                     if (recursed && !(*perms & PERM_RECURSIVE))
                         continue;
-                    int accmode = ffi->flags & O_ACCMODE;
                     if (accmode == O_RDONLY && *perms & PERM_READ)
                         goto granted;
                     else if (accmode == O_WRONLY && *perms & PERM_WRITE)
@@ -184,7 +183,7 @@ granted:
  *      otherwise the return value of open for the same parameters.
  */
 int nu_open(const char *path, struct fuse_file_info *ffi) {
-    if (!has_access(path, ffi))
+    if (!has_access(path, ffi->flags & O_ACCMODE))
         return -EACCES;
     char fullpath[PATH_MAX + 1];
     fill_fullpath(fullpath, path);
@@ -201,7 +200,7 @@ int nu_open(const char *path, struct fuse_file_info *ffi) {
  */
 int nu_opendir(const char *path, struct fuse_file_info *ffi) {
     syslog(LOG_INFO, "opendir path=%s", path);
-    if (!has_access(path, ffi))
+    if (!has_access(path, ffi->flags & O_ACCMODE))
         return -EACCES;
     char fullpath[PATH_MAX + 1];
     fill_fullpath(fullpath, path);
@@ -245,6 +244,15 @@ int nu_write(const char *path, const char *buf, size_t size, off_t offset,
 }
 
 /*
+ * nu_release
+ *      DESCRIPTION: Thin wrapper around close for the filesystem. No security
+ *      decisions are made.
+ */
+int nu_release(const char* path, struct fuse_file_info *ffi) {
+    return close(ffi->fh);
+}
+
+/*
  * fuse_start
  *      DESCRIPTION: Entrypoint into the filesystem. Saves the path arguments
  *      to the main executable and the policy object as FUSE private data and
@@ -255,6 +263,7 @@ int fuse_start(int argc, char *argv[], struct policy policy) {
     struct fuse_operations fo = {
         .getattr = nu_getattr,
         .open = nu_open,
+        .release = nu_release,
         .read = nu_read,
         .write = nu_write,
         .opendir = nu_opendir,
