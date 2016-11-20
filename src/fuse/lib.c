@@ -130,7 +130,7 @@ bool has_access(const char *path, struct fuse_file_info *ffi) {
     // to the root object ("/") and do not grant access, we deny access.
     for (;;) {
         struct hashmap *role_perms;
-        if (role_perms = hashmap_get(policy.obj_role_perms, mpath)) {
+        if ((role_perms = hashmap_get(policy.obj_role_perms, mpath))) {
             struct list *roles;
             if ((roles = hashmap_get(policy.user_roles, pw_name))) {
                 for (; roles; roles = list_next(roles)) {
@@ -216,8 +216,7 @@ int nu_opendir(const char *path, struct fuse_file_info *ffi) {
  */
 int nu_readdir(const char *path, void *buf, fuse_fill_dir_t fill, off_t offset,
         struct fuse_file_info *ffi) {
-    (void *) path;
-    DIR *d = (DIR *) ffi->fh;
+    DIR *d = (DIR *) (uintptr_t) ffi->fh;
     struct dirent *de;
     while ((de = readdir(d)) != NULL)
         if (fill(buf, de->d_name, NULL, 0) != 0)
@@ -276,5 +275,5 @@ int fuse_start(int argc, char *argv[], struct policy policy) {
         .policy = policy,
     };
 
-    fuse_main(argc, argv, &fo, &private_data);
+    return fuse_main(argc, argv, &fo, &private_data);
 }

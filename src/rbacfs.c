@@ -25,5 +25,5 @@ int main(int argc, char *argv[]) {
 
     struct policy policy = policy_build(defs);
 
-    fuse_start(argc, argv, policy);
+    return fuse_start(argc, argv, policy);
 }

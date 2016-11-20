@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -D_FILE_OFFSET_BITS=64
+CFLAGS += -D_FILE_OFFSET_BITS=64
 
 .PHONY: all
 all: lib.a
