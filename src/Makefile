@@ -19,8 +19,9 @@ rbacfs: rbacfs.c $(LIBS) $(LDFLAGS)
 test: $(LIBS)
 	@for mod in ${MODS}; \
 		do cd $$mod; \
-		make test \
-			&& ./test \
+		make test; \
+		if ! test -e ./test; then cd ..; continue; fi; \
+		./test \
 			&& echo -e "\e[0;32m" $$mod "passed" "\e[0m" \
 			|| echo -e "\e[0;31m" $$mod "failed" "\e[0m"; \
 		cd ..; \
