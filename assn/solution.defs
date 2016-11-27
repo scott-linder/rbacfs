@@ -1,4 +1,4 @@
-user: admin,user bob
+user: admin bob
 user: user john
 user: daemon lpd
 
