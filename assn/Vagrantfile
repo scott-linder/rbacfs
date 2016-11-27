@@ -21,5 +21,8 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     rm -rf rbacfs
+    useradd bob
+    useradd john
+    useradd lpd
   SHELL
 end

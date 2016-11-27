@@ -1,0 +1,76 @@
+\documentclass[11pt,oneside,letterpaper]{article}
+
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{graphicx}
+
+\begin{document}
+
+\title{
+    Role-Based Access Control Filesystem\\
+    (RBACFS) \\
+    Sample Assignment
+}
+\author{
+    Scott Linder\\
+    \and
+    Ryan DePrekel\\
+    \and
+    Justin Lanyon
+}
+\date{\today}
+
+\maketitle
+
+\begin{abstract}
+UNIX permission bits do not provide fine-grained and flexible control over
+access, only permitting read (r), write (w), and execute (x), permissions to be
+set for user (u), group (g), and other(o). Role Based Access Control (RBAC)
+allows for many roles to have different access to the same object, as opposed
+to permission bits which allow at most one group and one user to have
+permissions. You will implement an RBAC policy via a definitions file for
+a filesystem implementing RBAC (RBACFS).
+\end{abstract}
+
+\section{Overview}
+
+You have been given a {\tt Vagrantfile} which will create a new virtualbox
+VM and automatically install RBACFS. From within the VM, change to the
+{\tt /vagrant} directory, and mount the filesystem with the following line:
+\begin{lstlisting}
+sudo rbacfs -o allow_other mount root student.defs
+\end{lstlisting}
+
+Test the policy implementation using the following script, which will
+print nothing when the solution is acceptable:
+\begin{lstlisting}
+./test.sh
+\end{lstlisting}
+
+In order to change the policy, the filesystem must be unmounted and remounted.
+The filesystem can be unmounted with the following command:
+\begin{lstlisting}
+sudo fusermount -u mount
+\end{lstlisting}
+
+\section{Requirements}
+
+Modify {\tt student.defs} to implement the following policy.
+
+\subsection{Policy}
+
+The {\tt admin} role must be able to read and write to the printer config file,
+located at {\tt /etc/lpd.conf}, while the {\tt daemon} role must only be able
+to read it.
+
+The {\tt admin} role must be able to read the system log file at {\tt
+/var/syslog}, while the {\tt daemon} role must be able to write to it.
+
+The {\tt user} role must be able to read and write the reports files
+at and under the {\tt /var/reports} directory, and read and write files at and under the {\tt /home}.
+
+\subsection{Submissions}
+
+The only file which must be submitted is {\tt student.defs}.
+
+\end{document}
