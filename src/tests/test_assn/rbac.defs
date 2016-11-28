@@ -1,0 +1,11 @@
+user: admin bob
+user: user john
+user: daemon lpd
+
+object: admin r,w /etc/lpd.conf
+object: admin r /var/syslog
+object: user r,w -r /var/reports
+object: user r,w -r /home
+object: daemon r /etc/lpd.conf
+object: daemon w /var/syslog
+object: daemon r,w /dev/lp0
