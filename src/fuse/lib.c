@@ -244,6 +244,42 @@ int nu_write(const char *path, const char *buf, size_t size, off_t offset,
 }
 
 /*
+ * nu_truncate
+ *		DESCRIPTION: Thin wrapper around truncate for the filesystem.
+ *
+ */
+
+int nu_truncate(const char* path, off_t size){
+	int ret;
+
+	ret = truncate(path, size);
+	if(ret == -1){
+		return -errno;
+	}
+
+	return 0;
+}
+
+/*
+ * nu_ftruncate
+ *		DESCRIPTION: Thin wrapper around ftruncate for the filesystem.
+ *
+ */
+
+int nu_ftruncate(const char* path, off_t size, struct fuse_file_info *ffi){
+	int ret;
+
+	(void) path;
+
+	ret = ftruncate(ffi->fh, size);
+	if(ret == -1){
+		return -errno;
+	}
+
+	return 0;
+}
+
+/*
  * nu_release
  *      DESCRIPTION: Thin wrapper around close for the filesystem. No security
  *      decisions are made.
@@ -268,6 +304,8 @@ int fuse_start(int argc, char *argv[], struct policy policy) {
         .write = nu_write,
         .opendir = nu_opendir,
         .readdir = nu_readdir,
+        .truncate = nu_truncate,
+        .ftruncate = nu_ftruncate
     };
 
     /* we store the canonical path to the shadowed root as our fuse
