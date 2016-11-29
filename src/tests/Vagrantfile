@@ -25,5 +25,8 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     rm -rf rbacfs
+    cp -r /vagrant/ .
+    cd vagrant
+    ./test.sh
   SHELL
 end

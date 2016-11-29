@@ -16,7 +16,10 @@ export CFLAGS
 rbacfs: rbacfs.c $(LIBS) $(LDFLAGS)
 
 .PHONY: test
-test: $(LIBS)
+test: unit-test int-test
+
+.PHONY: unit-test
+unit-test: $(LIBS)
 	@for mod in ${MODS}; \
 		do cd $$mod; \
 		make test; \
@@ -26,6 +29,11 @@ test: $(LIBS)
 			|| echo -e "\e[0;31m" $$mod "failed" "\e[0m"; \
 		cd ..; \
 	done
+
+.PHONY: int-test
+int-test:
+	@cd tests; vagrant up
+
 
 # We cannot know whether each module need to be rebuilt, so we ensure we always
 # force them to check if their lib.a is required.

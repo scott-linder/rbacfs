@@ -1,6 +1,6 @@
-user: admin bob
-user: user john
-user: daemon lpd
+user: admin user1
+user: user user2
+user: daemon user3
 
 object: admin r,w /etc/lpd.conf
 object: admin r /var/syslog
