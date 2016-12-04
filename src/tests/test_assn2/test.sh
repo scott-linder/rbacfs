@@ -23,8 +23,8 @@ readas user2 /home/file1 succeed
 writeas user2 /home/file1 succeed
 readas user2 /home/file2 succeed
 writeas user2 /home/file2 succeed
-readas user2 /etc/ldp.conf succeed
-writeas user2 /etc/ldp.conf fail
+readas user2 /etc/lpd.conf succeed
+writeas user2 /etc/lpd.conf fail
 readas user2 /var/syslog fail
 writeas user2 /var/syslog succeed
 readas user2 /dev/lp0 succeed
