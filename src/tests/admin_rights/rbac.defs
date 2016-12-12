@@ -1,0 +1,6 @@
+user: admin user1
+user: nonadmin user2
+user: role3 user3
+
+object: admin r,w,x -r /
+object: nonadmin,role3 r -r /
