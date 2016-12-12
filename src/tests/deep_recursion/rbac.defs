@@ -1,0 +1,9 @@
+user: role1 user1
+user: role2 user2
+user: role3 user3
+
+object: role1 r,w /etc/dir/bar
+object: role1 r /etc/dir/foo/dv3
+object: role2 r,w -r /test
+object: role3 r -r /var
+object: role3 w -r /var/int

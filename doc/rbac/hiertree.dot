@@ -1,0 +1,9 @@
+digraph {
+
+CEO -> CFO
+CEO -> CTO
+CTO -> Sysadmins
+CFO -> Accountants
+Sysadmins -> Users
+Accountants -> Users
+}

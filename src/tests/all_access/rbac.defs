@@ -1,0 +1,5 @@
+user: role1 user1
+user: role2 user2
+user: role3 user3
+
+object: role1,role2,role3 r,w,x -r /
