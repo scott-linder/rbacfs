@@ -234,6 +234,18 @@ generate a list of definitions, and then definitions are passed to the
 with the policy structure, are sent to the {\tt fuse} module, which
 mounts the filesystem and begins listening for filesystem accesses.
 
+\subsection{Extension: Hierarchical RBAC}
+
+The program currently implements Flat RBAC. To implement hierarchical RBAC, the
+grammar would need to be extended with a new definition type (i.e. a definition
+type which marks one role as a descendant of another), which would require
+changes to the lexer and parser defined in the {\tt parse} module.
+Additionally, the {\tt policy} module would need to be extended to return the
+set of permissions for the role itself as well as all descendants of the role.
+Doing this in the {\tt policy} module would mean that the {\tt fuse} module
+would not need to be changed, as it would see the updated {\tt policy} data
+structures transparently.
+
 \section{Updates}
 
 Updates can be applied simply by going through the same set of steps found
